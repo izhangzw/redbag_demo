@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+<meta name="format-detection" content="telephone=no,email=no,date=no,address=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" /><!--当网站添加到主屏幕快速启动方式，可隐藏地址栏，仅针对ios的safari-->
+<meta name="apple-mobile-web-app-status-bar-style" content="black" /><!--将网站添加到主屏幕快速启动方式，仅针对ios的safari顶端状态条的样式-->
+<meta name="msapplication-tap-highlight" content="no"><!--去掉winphone系统a、input标签被点击时产生的半透明灰色背景-->
+<meta name="keywords" content="摩卡, 摩卡年会, 抢红包, 红包飞舞" />
+<meta name="description" content="摩卡年会抢红包" />
+<title>全民红包</title>
+<link rel="stylesheet" type="text/css" href="../css/base.css">
+<link rel="stylesheet" type="text/css" href="../css/index.css">
+<link rel="stylesheet" type="text/css" href="../Iscroll/scrollbar.css">
+<style>
+body{background: #fff; }
+#footer{bottom: 0;z-index: 999; }
+#ranking {margin-top: 1px}
+#ranking li{background: #fffdf8;text-align: left;height: 46px;margin-bottom: 1px}
+#ranking li>.a{width: 30px;text-align: end;height: inherit;}
+#ranking li>.b{width: 45px;height: inherit;margin-left: 10px}
+#ranking li .photo{border-radius: 35px}
+#ranking li>.c{height: inherit;}
+#ranking li>.e{height: inherit;}
+#ranking li>.e>.ea{}
+#ranking li>.e>.eb>time{display: block;color: #888;font-size: 14px;}
+#ranking li>.z{width: 55px;color: #F44347;font-weight: bolder;font-size: 14px;height: inherit;}
+
+.photo{background-color: darkslategray;}
+</style>
+</head>
+<body>
+<header>
+	<div class="ranktitle">
+		<div class="pull-left" style="color: #FFFFFF;">您的红包金额：</div>
+		<div class="pull-right" style="color: #fced4a;font-size: 24px;">&yen;<span>30</span></div>
+	</div>
+</header>
+   
+<div id="wrapper">
+	<div id="scroller">
+		<div id="pullDown" style="display: none;">
+		<!-- <span class="pullDownIcon"></span><span class="pullDownLabel">下拉刷新...</span> -->
+		</div>
+		
+		<ul id="ranking">
+			
+		</ul>
+		
+		<div id="pullUp" style="text-align: center;">
+			<span class="pullUpIcon"></span><span class="pullUpLabel"><!-- 上拉加载更多... --></span>
+			<span class="noCont" style="display:none"></span>
+		</div>
+	</div>
+</div>
+<footer id="footer">@ 摩卡应用创新部</footer>
+</body>
+<script src="../js/jquery.js"></script>
+<script src="../js/base.js"></script>
+<script src="../Iscroll/iscroll.js"></script>
+<script>
+
+var people = {
+	isLand: function(email){
+		if(!email) return false;
+		email = email.toLowerCase();
+		return email.indexOf('@zoneland') != -1;//#0266BF
+	},
+	isMocha:function(email){
+		if(!email) return false;
+		email = email.toLowerCase();
+		return email.indexOf('@mochasoft') != -1;//#682908
+	}
+}
+Rank = {
+	pagesize: 9,//* 条数需-1
+	loading: false,
+	newLine: function(data){
+		/* loginName userName email bonus createTime */
+		
+		var userName = data.userName ? data.userName : data.loginName;
+		userName = Util.subString(userName, 6);
+		var logo = '';
+		if(people.isLand(data.email)){
+			logo = 'zoneland';
+		}else if(people.isMocha(data.email)){
+			logo = 'mochasoft';
+		}else{
+			logo = 'hidden';
+		}
+		var html = '';
+		html += '<li class="item flex animated fadeInUpSlow flex-align-center" data-index="'+data.index+'">';
+		html += '<div class="b border-btm flex flex-align-center flex-pack-start"><img class="photo animated fadeIn" width="35" height="35" /></div>';
+		html += '<div class="e border-btm flex-1 flex-v">';
+		html += '<div class="flex-1 ea line-ellipsis">'+userName+'<i class="logotype '+logo+'"></i></div>';
+		html += '<div class="flex-1 eb line-ellipsis"><time class="timeago" datetime="'+iso8601(new Date(data.createTime))+'"></time></div>';
+		html += '</div>';
+		html += '<div class="z border-btm">&yen;&nbsp;'+data.bonus+'</div>';
+		html += '</li>';
+		/*
+		html += '<div class="ranklist item" data-index="'+data.index+'">';
+		html += '<div class="rank-rowL"><img class="icon-timeLine" src="'+host+'/resources/img/time_line.png"></div>';
+		html += '<div class="clearfix ppp">';
+		html += '<div class="pull-left">'+Tools.Dater.getHM(data.createTime)+'</div>';
+		html += '<div class="rank-rowR pull-left">';
+		html += '<div class="circle pull-left"></div>';
+		html += '<div class="ml6 pull-left"><i class="logotype '+logo+'"></i>'+userName+'，获得<span style="color: #fa5c57; font-weight: bold;">'+data.bonus+'</span>元</div>';
+		html += '</div>';
+		html += '</div>';
+		html += '</div>';
+		*/
+		return html;
+	},
+	list: function(start,pagesize){
+		if(Rank.loading) {
+			return false
+		}else{
+			$('#loader').removeClass('hidden')
+		}
+		Rank.loading = true;
+		//假数据
+		var datas = [];
+		for(var i=0; i<3; i++){
+			var data = {
+				userName: '沙比'+i,
+				loginName: 'shabi'+i,
+				email: 'sb'+i+'@mochasoft.com.cn',
+				bonus: i * 10,
+				createTime: +new Date()
+			}
+			datas.push(data)
+		}
+		var html = '';
+		$.each(datas, function(i, v){
+			v.index = (start+i);
+			html += Rank.newLine(v);
+		})
+		$('#ranking').append(html);
+		$('.timeago').timeago();
+		Rank.loading = false;
+		/*start = parseInt(start);
+		pagesize = pagesize ? pagesize : Rank.pagesize;
+		var p = {
+			url : 'charts/get?start='+start+'&pagesize='+pagesize,
+			method: 'get'
+		}
+		Util.ajax.ajax(p, function(data){
+			Rank.loading = false;
+			if(data && data.length>0){
+				var html = '';
+				$.each(data, function(i, v){
+					v.index = (start+i);
+					html += Rank.newLine(v);
+				})
+				$('#ranking').append(html);
+				$('.timeago').timeago();
+			}else{
+				toastr.warning('没有更多了')
+			}
+		},function(){
+			Rank.loading = false;
+        	$('#loader').addClass('hidden')
+		})*/
+	},
+	more: function(){
+		var $last = $('#ranking>.item:last');
+    	var start = $last.attr('data-index');
+    	start = parseInt(start) + 1;
+    	Rank.list(start)
+	}
+}
+function ajaxGetData(){
+	Rank.more();
+}
+
+$(function(){
+	Rank.list(0)
+})
+</script>
+</html>

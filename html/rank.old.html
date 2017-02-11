@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+<meta name="format-detection" content="telephone=no,email=no,date=no,address=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" /><!--当网站添加到主屏幕快速启动方式，可隐藏地址栏，仅针对ios的safari-->
+<meta name="apple-mobile-web-app-status-bar-style" content="black" /><!--将网站添加到主屏幕快速启动方式，仅针对ios的safari顶端状态条的样式-->
+<meta name="msapplication-tap-highlight" content="no"><!--去掉winphone系统a、input标签被点击时产生的半透明灰色背景-->
+<meta name="keywords" content="摩卡, 摩卡年会, 抢红包, 红包飞舞" />
+<meta name="description" content="摩卡年会抢红包" />
+<title>全民红包</title>
+<link rel="stylesheet" type="text/css" href="../css/base.css">
+<link rel="stylesheet" type="text/css" href="../css/index.css">
+<script src="../js/jquery.js"></script>
+<script src="../js/base.js"></script>
+<style>
+body{background:-webkit-gradient(linear, 40% 100%, 40% 2%, from(#F44347), to(#EE3F44)); }
+#wrapper{padding-bottom: 50px;background-color: #F44347;}
+ul li{background: #fffdf8;text-align: left;margin-bottom: 10px;}
+ul li>.a{width: 30px;text-align: end;font-family: "simhei";}
+ul li>.b{width: 68px;text-align: left;padding-left: 5px;}
+ul li>.c{font-family: "Heiti SC Thin";}
+ul li>.e{padding-left: 10px;}
+ul li>.e>.ea{}
+ul li>.e>.eb>time{display: block;color: #888;font-size: 14px;}
+ul li>.z{width: 55px;color: #F44347;font-weight: bolder;font-size: 20px;}
+ul li.loader{margin-top: -10px;text-align: center;background-color: #ccc;}
+#footer{height: 44px;bottom: 0;line-height: 64px;background-color: #F44347;z-index: 999;}
+.kong{height: 10px;background-color: #F44347;}
+.refresh{position: fixed;bottom: 10px; right: 10px;width: 50px;height: 30px;font-style: normal;z-index: 10000;border-radius: 10px;line-height: 30px; background-color: #ecd8d4;color: #000;cursor: pointer;}
+.refresh.able:after{content: '更多'}
+.refresh.able:hover{background-color: rgb(110, 191, 40);}
+.refresh.disable{background-color: #ccc;color: #fff}
+
+#loader{background-color: teal;margin-top: -10px;color: #efefef}
+
+.logotype{border-radius: 3px;font-style: normal;color: #fff;font-size: 14px;padding: 2px 4px;}
+.zoneland{background-color: #0266BF;}
+.mocha{background-color: #682908;}
+
+.zoneland:after{content: '兰'}
+.mocha:after{content: '摩'}
+</style>
+</head>
+<body>
+
+<i class="logotype zoneland"></i>
+<i class="logotype mocha"></i>
+	<i class="refresh able"></i>
+	<div class="kong"></div>
+<div id="wrapper">
+	<ul id="ranking">
+		<li class="item flex animated fadeInUpSlow flex-align-center">
+			<!--<div class="a"></div>-->
+			<div class="e flex-1 flex-v">
+				<div class="flex-1 ea line-ellipsis">周杰伦（jayChou@mocha）</div>
+				<div class="flex-1 eb line-ellipsis"><time>刚刚</time></div>
+			</div>
+			<div class="z">&yen;&nbsp;999</div>
+		</li>
+		<li class="item flex animated fadeInUpSlow flex-align-center">
+			<!--<div class="a"></div>-->
+			<div class="e flex-1 flex-v">
+				<div class="flex-1 ea line-ellipsis">周杰伦（jayChou@mocha）</div>
+				<div class="flex-1 eb line-ellipsis"><time>刚刚</time></div>
+			</div>
+			<div class="z">&yen;&nbsp;999</div>
+		</li>
+	</ul>
+	<div class="hidden" id="loader">loading...</div>
+</div>
+
+
+<footer id="footer">@ 摩卡应用创新部</footer>
+</body>
+<script>
+Rank = {
+	pagesize: 10,
+	loading: false,
+	newLine: function(data){
+		/* loginName userName email bonus createTime */
+		var photoHome = $('#photoHome').val();
+		var userName = data.userName ? data.userName : data.loginName;
+		userName = Util.subString(userName, 6);
+		var photo = photoHome + data.loginName;//var photo = photoHome + 'shizy';
+		var logo = '';
+		if(people.isLand(data.email)){
+			logo = 'zoneland';
+		}else if(people.isMocha(data.email)){
+			logo = 'mochasoft';
+		}else{
+			logo = 'hidden';
+		}
+		var html = '';
+		/*
+		html += '<li class="item flex animated fadeInUpSlow" data-index="'+data.index+'">';
+		html += '<span class="b line-ellipsis">'+data.userName+'</span>';
+		html += '<span class="c line-ellipsis flex-1">'+data.email+'</span>';
+		html += '<span class="z">&yen;&nbsp;'+data.bonus+'</span>';
+		html += '</li>';
+		 */
+		html += '<li class="item flex animated fadeInUpSlow flex-align-center" data-index="'+data.index+'">';
+		html += '<div class="b border-btm flex flex-align-center flex-pack-start"><img class="photo" width="35" height="35" src="'+photo+'"/></div>';
+		html += '<div class="e border-btm flex-1 flex-v">';
+		html += '<div class="flex-1 ea line-ellipsis">'+userName+'<i class="logotype '+logo+'"></i></div>';
+		html += '<div class="flex-1 eb line-ellipsis"><time class="timeago" datetime="'+iso8601(new Date(data.createTime))+'"></time></div>';
+		html += '</div>';
+		html += '<div class="z border-btm">&yen;&nbsp;'+data.bonus+'</div>';
+		html += '</li>';
+		/*
+		html += '<div class="ranklist item" data-index="'+data.index+'">';
+		html += '<div class="rank-rowL"><img class="icon-timeLine" src="'+host+'/resources/img/time_line.png"></div>';
+		html += '<div class="clearfix ppp">';
+		html += '<div class="pull-left">'+Tools.Dater.getHM(data.createTime)+'</div>';
+		html += '<div class="rank-rowR pull-left">';
+		html += '<div class="circle pull-left"></div>';
+		html += '<div class="ml6 pull-left"><i class="logotype '+logo+'"></i>'+userName+'，获得<span style="color: #fa5c57; font-weight: bold;">'+data.bonus+'</span>元</div>';
+		html += '</div>';
+		html += '</div>';
+		html += '</div>';
+		*/
+		
+		return html;
+	},
+	list: function(start,pagesize){
+		if(Rank.loading) {
+			return false
+		}else{
+			$('#loader').removeClass('hidden')
+		}
+		Rank.loading = true;
+		pagesize = pagesize ? pagesize : Rank.pagesize;
+		var p = {
+			url : 'security/charts/get?start='+start+'&pagesize='+pagesize,
+			method: 'get'
+		}
+		Util.ajax.ajax(p, function(data){
+			Rank.loading = false;
+			if(data){
+				var html = '';
+				$.each(data, function(i, v){
+					v.index = (start+i);
+					html += Rank.newLine(v);
+				})
+				$('#ranking').append(html)
+			}
+		},function(){
+			Rank.loading = false;
+        	$('#loader').addClass('hidden')
+		})
+	},
+	more: function(){
+		var $last = $('#ranking>li:last');
+    	var start = $last.attr('data-index');
+    	Rank.list(start)
+	}
+}
+
+
+$(document).on('click', '.refresh.able', function(){
+	var time = 3;
+	var $o = $(this);
+	$o.toggleClass('able disable').html(time);
+	var timer = setInterval(function(){
+		if(time<=1){
+			$o.html('').toggleClass('able disable');
+			clearInterval(timer)
+		}else{
+			$o.html(--time)
+		}
+	},1000);
+	
+	
+	var target = '#footer';
+	if ($(target).length) {
+		var scrollpos = $(target).offset().top;
+		$("html,body").stop().animate({scrollTop: scrollpos-80}, 800);
+	}
+	Rank.more();
+})
+
+
+$(function(){
+	Rank.list(0)
+	
+	/*
+	var wrapperHeight = $('#wrapper').height();
+	var windowHeight  = $(window).height();
+	var noScroll = wrapperHeight<windowHeight;
+	var hx = 0;
+	$(window).scroll(function(){
+		if(noScroll) return false;
+		hx = $(document).scrollTop() + $(window).height() - $(document).height();
+	    if(hx>=-2 && hx<=2) {
+	    	Rank.more();
+	    }
+	});*/
+})
+</script>
+</html>
